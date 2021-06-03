@@ -1,6 +1,9 @@
 
 
 function spikeStruct = loadKSdir(ksDir, varargin)
+% modified to load params.sample_rate
+% last updated @ 210601
+
 
 if ~isempty(varargin)
     params = varargin{1};
@@ -18,6 +21,10 @@ end
 % load spike data
 
 spikeStruct = loadParamsPy(fullfile(ksDir, 'params.py'));
+
+if isfield(params, 'sample_rate')
+    spikeStruct.sample_rate = params.sample_rate; % overwrite default acquisition rate by empirical acquisition rate
+end
 
 ss = readNPY(fullfile(ksDir, 'spike_times.npy'));
 st = double(ss)/spikeStruct.sample_rate;
@@ -68,7 +75,7 @@ if ~isempty(cgsFile)
         
     end
     
-else
+else % skip phy
     clu = spikeTemplates;
     
     cids = unique(spikeTemplates);
@@ -82,6 +89,14 @@ temps = readNPY(fullfile(ksDir, 'templates.npy'));
 
 winv = readNPY(fullfile(ksDir, 'whitening_mat_inv.npy'));
 
+% idx for clusters to template: this is necessary if you merge/split any cluster in phy
+for iUni = 1: length(cids)
+    cluToTemp(iUni) = mode(spikeTemplates(clu==cids(iUni)));
+end
+
+
+
+
 spikeStruct.st = st;
 spikeStruct.spikeTemplates = spikeTemplates;
 spikeStruct.clu = clu;
@@ -94,3 +109,4 @@ spikeStruct.temps = temps;
 spikeStruct.winv = winv;
 spikeStruct.pcFeat = pcFeat;
 spikeStruct.pcFeatInd = pcFeatInd;
+spikeStruct.cluToTemp = cluToTemp;

@@ -91,7 +91,7 @@ winv = readNPY(fullfile(ksDir, 'whitening_mat_inv.npy'));
 
 % idx for clusters to template: this is necessary if you merge/split any cluster in phy
 for iUni = 1: length(cids)
-    cluToTemp(iUni) = mode(spikeTemplates(clu==cids(iUni)));
+    cluToTemp(iUni) = mode(spikeTemplates(clu==cids(iUni)))+1; % 1-based
 end
 
 
